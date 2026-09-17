@@ -48,13 +48,13 @@
 ## 🖼 Скриншоты
 
 ### Главная страница
-![Главная](img/screenshots/main.webp)
+![alt](img/screenshots/main.webp)
 
 ### Каталог
-![Каталог](img/screenshots/catalog.webp)
+![alt](img/screenshots/catalog.webp)
 
 ### Telegram/WhatsApp Widget
-![Telegram Widget ](img/screenshots/vidget.webp)
+![alt](img/screenshots/vidget.webp)
 
 
 *Последнее обновление: 2026*
