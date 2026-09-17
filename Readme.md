@@ -54,7 +54,8 @@
 ![Каталог](img/screenshots/catalog.webp)
 
 ### Telegram/WhatsApp Widget
-![Telegram/WhatsApp Widget](img/screenshots/vidget.webp)
+![Telegram/WhatsApp Widget ](img/screenshots/vidget.webp)
+
 
 
 *Последнее обновление: 2026*
