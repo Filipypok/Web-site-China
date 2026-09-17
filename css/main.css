@@ -1995,7 +1995,7 @@ html.js .reveal-delay-3 {
   }
 
   main {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 14px;
     padding: 0;
     margin-bottom: 40px;
@@ -2069,7 +2069,7 @@ html.js .reveal-delay-3 {
   }
 
   .most {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 14px;
   }
 
@@ -2207,7 +2207,7 @@ html.js .reveal-delay-3 {
   }
 
   main {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
 
@@ -2233,7 +2233,7 @@ html.js .reveal-delay-3 {
   }
 
   .most {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 10px;
   }
 
@@ -2531,4 +2531,84 @@ main > .hero-text {
   line-height: 1.6;
   max-width: 900px;
   margin: 0;
+}
+
+/* Галерея */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+  margin: 24px 0 40px;
+}
+
+.gallery-item {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.gallery-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 800px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .gallery-item img {
+    height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .gallery-item img {
+    height: 240px;
+  }
+}
+
+/* Лайтбокс — мобильные кнопки крупнее */
+@media (max-width: 800px) {
+  #gallery-overlay .gallery-prev,
+  #gallery-overlay .gallery-next {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 48px !important;
+    padding: 16px !important;
+  }
+  #gallery-overlay .gallery-prev {
+    left: 2px !important;
+  }
+  #gallery-overlay .gallery-next {
+    right: 2px !important;
+  }
+  #gallery-overlay .gallery-close {
+    width: 56px !important;
+    height: 56px !important;
+    font-size: 36px !important;
+    top: 8px !important;
+    right: 8px !important;
+  }
+  #gallery-overlay .gallery-img {
+    max-width: 96% !important;
+    max-height: 78vh !important;
+  }
+  #gallery-overlay .gallery-counter {
+    font-size: 14px !important;
+    margin-top: 8px !important;
+  }
 }

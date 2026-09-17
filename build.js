@@ -21,6 +21,7 @@ const CATEGORIES = {
 const HEADER_MARKER = '<!--#header-->';
 const FOOTER_MARKER = '<!--#footer-->';
 const CATALOG_MARKER = '<!--#catalog-->';
+const SIDEBAR_MARKER = '<!--#sidebar-->';
 const H1_MARKER = '<!--#h1-index-->';
 
 const PARTIALS_DIR = path.join(__dirname, 'partials');
@@ -39,6 +40,19 @@ function readPartialLines(file) {
 const headerLines = readPartialLines('header.html');
 const catalogLines = readPartialLines('catalog.html');
 const footerLines = readPartialLines('footer.html');
+const sidebarLines = readPartialLines('sidebar.html');
+
+// Маппинг: директория -> паттерн ссылки для подсветки id="first" в сайдбаре
+const SIDEBAR_ACTIVE_MAP = {
+  'trailer-axle': 'href="/trailer-axle/bridge-trailer-page.html"',
+  'vozdushnaya-podveska': 'href="/vozdushnaya-podveska/vozdushnaya-podveska.html"',
+  'zapchasti-dlya-mosta-gruzovyh-avtomobiley': 'href="/zapchasti-dlya-mosta-gruzovyh-avtomobiley/zapchasti-dlya-mosta-gruzovyh-avtomobiley.html"',
+  'neftyanoye-oborudovanie': 'href="/neftyanoye-oborudovanie/neftyanoye-oborudovanie.html"',
+  'casting': 'href="/casting/casting-page.html"',
+  'kovka-na-zakaz': 'href="/kovka-na-zakaz/kovka-na-zakaz.html"',
+  'shtampovka-na-zakaz': 'href="/shtampovka-na-zakaz/shtampovka-na-zakaz.html"',
+  'rezinovye-izdeliya': 'href="/rezinovye-izdeliya/rezinovye-izdeliya.html"',
+};
 
 const ACTIVE_ITEMS = [
   {
@@ -155,6 +169,14 @@ function detectFooterRegion(lines) {
   const start = lines.findIndex((l) => l.trim().startsWith('<footer'));
   if (start === -1) return null;
   const end = lines.findIndex((l, i) => i > start && l.includes('</footer>'));
+  if (end === -1) return null;
+  return { startIdx: start, endIdx: end };
+}
+
+function detectSidebarRegion(lines) {
+  const start = lines.findIndex((l) => l.includes('<aside class="sidebar">'));
+  if (start === -1) return null;
+  const end = lines.findIndex((l, i) => i >= start && l.includes('</aside>'));
   if (end === -1) return null;
   return { startIdx: start, endIdx: end };
 }
@@ -543,6 +565,15 @@ function processFile(filePath, stats, stat) {
   }
   lines.splice(footer.startIdx, footer.endIdx - footer.startIdx + 1, FOOTER_MARKER);
 
+  let sidebar = detectSidebarRegion(lines);
+  if (!sidebar) {
+    const markerIdx = lines.findIndex((l) => l.trim() === SIDEBAR_MARKER);
+    if (markerIdx !== -1) sidebar = { startIdx: markerIdx, endIdx: markerIdx };
+  }
+  if (sidebar) {
+    lines.splice(sidebar.startIdx, sidebar.endIdx - sidebar.startIdx + 1, SIDEBAR_MARKER);
+  }
+
   let body = lines.join('\n');
 
   body = applyLazy(body);
@@ -551,6 +582,25 @@ function processFile(filePath, stats, stat) {
   if (warn) stats.warnings.push(`${filePath}: ${warn}`);
   body = body.replace(HEADER_MARKER, headLines.join('\n'));
   body = body.replace(FOOTER_MARKER, footerLines.join('\n'));
+
+  if (body.includes(SIDEBAR_MARKER)) {
+    let sidebarHtml = sidebarLines.join('\n');
+    const rel = path.relative(__dirname, filePath).split(path.sep).join('/');
+    const dirName = path.posix.dirname(rel);
+    const activePattern = SIDEBAR_ACTIVE_MAP[dirName];
+    if (path.basename(filePath) === 'pnevmaticheskiy-spayder.html') {
+      const zapchLink = '<a href="/zapchasti-dlya-mosta-gruzovyh-avtomobiley/zapchasti-dlya-mosta-gruzovyh-avtomobiley.html" class="menu-button">';
+      sidebarHtml = sidebarHtml.replace(zapchLink, zapchLink.replace(/>$/, ' id="first">'));
+    } else if (activePattern) {
+      const escaped = activePattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(<a\\b[^>]*${escaped}[^>]*>)`);
+      sidebarHtml = sidebarHtml.replace(regex, (match) => {
+        if (match.includes('id="first"')) return match;
+        return match.replace(/>$/, ' id="first">');
+      });
+    }
+    body = body.replace(SIDEBAR_MARKER, sidebarHtml);
+  }
 
   body = applyHeadSeo(body, filePath, stats.usedTitles).content;
 
@@ -570,7 +620,7 @@ function processFile(filePath, stats, stat) {
 
   body = applyContentFixes(body);
 
-  if (body.includes(HEADER_MARKER) || body.includes(FOOTER_MARKER)) {
+  if (body.includes(HEADER_MARKER) || body.includes(FOOTER_MARKER) || body.includes(SIDEBAR_MARKER)) {
     stats.warnings.push(`${filePath}: остался маркер после сборки`);
   }
 
